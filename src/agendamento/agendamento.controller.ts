@@ -9,7 +9,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { usuariologado } from 'src/usuario/usuario.decorator';
+import { UsuarioLogado } from 'src/usuario/usuario.decorator';
 
 @Controller('agendamentos')
 export class AgendamentoController {
@@ -18,7 +18,7 @@ export class AgendamentoController {
   @Post()
   criar(
     @Body() agendamento: Agendamento,
-    @usuariologado() usuarioLogado: Usuario,
+    @UsuarioLogado() usuarioLogado: Usuario,
   ) {
     if (agendamento.usuario.id !== usuarioLogado.id) {
       throw new HttpException('Usuário não autorizado', 401);
@@ -55,7 +55,7 @@ export class AgendamentoController {
   async buscarAgendamentosPorClienteEData(
     @Param('clienteId') clienteId: string,
     @Param('data') dataParam: string,
-    @usuariologado() usuarioLogado: Usuario,
+    @UsuarioLogado() usuarioLogado: Usuario,
   ) {
     if (usuarioLogado.id !== +clienteId) {
       throw new HttpException('Usuário não autorizado', 401);
@@ -77,7 +77,7 @@ export class AgendamentoController {
   @Delete(':id')
   async excluir(
     @Param('id') id: string,
-    @usuariologado() usuarioLogado: Usuario,
+    @UsuarioLogado() usuarioLogado: Usuario,
   ) {
     if (!usuarioLogado.barbeiro) {
       throw new HttpException('Usuário não autorizado', 401);
