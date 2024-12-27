@@ -9,7 +9,7 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { UsuarioLogado } from 'src/usuario/usuario.decorator';
+import { UsuarioLogado } from '../usuario/usuario.decorator';
 
 @Controller('agendamentos')
 export class AgendamentoController {
