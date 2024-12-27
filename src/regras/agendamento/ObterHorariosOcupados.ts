@@ -1,32 +1,39 @@
-import { TEMPO_SLOT } from '../constants'
-import RepositorioAgendamento from './RepositorioAgendamento'
+import { TEMPO_SLOT } from '../constants';
+import RepositorioAgendamento from './RepositorioAgendamento';
 
 export default class ObterHorariosOcupados {
     constructor(private readonly repo: RepositorioAgendamento) {}
 
     async executar(profissionalId: number, data: Date): Promise<string[]> {
-        const agendamentos = await this.repo.buscarPorProfissionalEData(profissionalId, data)
+        const agendamentos = await this.repo.buscarPorProfissionalEData(profissionalId, data);
+
         const dados = agendamentos
             .map((agendamento) => {
                 return {
-                    data: agendamento.data,
+                    data: this.converterParaFusoHorarioLocal(agendamento.data),
                     slots: agendamento.servicos.reduce((total, s) => total + s.qtdeSlots, 0),
-                }
+                };
             })
             .reduce((horariosOcupados: Date[], dados: any) => {
-                const horario = dados.data
-                const slots = dados.slots
+                const horario = dados.data;
+                const slots = dados.slots;
                 const horarios = Array.from({ length: slots }, (_, i) =>
                     this.somarMinutos(horario, i * TEMPO_SLOT)
-                )
-                return [...horariosOcupados, ...horarios]
+                );
+                return [...horariosOcupados, ...horarios];
             }, [])
-            .map((d) => d.toTimeString().slice(0, 5))
+            .map((d) => d.toTimeString().slice(0, 5)); // Retorna no formato 'HH:mm'
 
-        return dados // [ '10:00', '10:15', '10:30', '10:45', '14:15' ]
+        return dados; // Exemplo: [ '10:00', '10:15', '10:30', '10:45', '14:15' ]
     }
 
     private somarMinutos(data: Date, minutos: number): Date {
-        return new Date(data.getTime() + minutos * 60000)
+        return new Date(data.getTime() + minutos * 60000);
+    }
+
+    private converterParaFusoHorarioLocal(data: Date): Date {
+        const dataUtc = new Date(data.toISOString()); // Converte para UTC
+        const offsetMinutos = -new Date().getTimezoneOffset(); // Obtém o deslocamento do fuso horário local
+        return new Date(dataUtc.getTime() + offsetMinutos * 60000); // Aplica o deslocamento
     }
 }
