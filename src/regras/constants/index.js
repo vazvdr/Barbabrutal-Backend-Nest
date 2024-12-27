@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.servicos = exports.profissionais = exports.clientes = exports.TEMPO_SLOT = void 0;
+var clientes_1 = require("./clientes");
+exports.clientes = clientes_1.default;
+var profissionais_1 = require("./profissionais");
+exports.profissionais = profissionais_1.default;
+var servicos_1 = require("./servicos");
+exports.servicos = servicos_1.default;
+var TEMPO_SLOT = 15;
+exports.TEMPO_SLOT = TEMPO_SLOT;
