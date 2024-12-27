@@ -2,11 +2,11 @@
   "name": "nestjs-app",
   "version": "1.0.0",
   "scripts": {
-    "start": "node dist/src/main",
+    "start": "node dist/main",
     "start:dev": "nest start --watch",
     "build": "prisma migrate deploy && nest build",
     "postinstall": "npm run build",
-    "start:prod": "node dist/src/main",
+    "start:prod": "node dist/main",
     "vercel-build": "npx prisma migrate deploy"
   },
   "dependencies": {
