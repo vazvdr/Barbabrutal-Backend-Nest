@@ -1,15 +1,21 @@
 import { TEMPO_SLOT } from '../constants'
 import RepositorioAgendamento from './RepositorioAgendamento'
+import moment from 'moment-timezone'
 
 export default class ObterHorariosOcupados {
     constructor(private readonly repo: RepositorioAgendamento) {}
 
     async executar(profissionalId: number, data: Date): Promise<string[]> {
-        const agendamentos = await this.repo.buscarPorProfissionalEData(profissionalId, data)
+        const dataBrasilia = moment(data).tz('America/Sao_Paulo', true).toDate()
+        
+        const agendamentos = await this.repo.buscarPorProfissionalEData(profissionalId, dataBrasilia)
+        
         const dados = agendamentos
             .map((agendamento) => {
+                const horarioBrasilia = moment(agendamento.data).tz('America/Sao_Paulo', true).toDate()
+                
                 return {
-                    data: agendamento.data,
+                    data: horarioBrasilia,
                     slots: agendamento.servicos.reduce((total, s) => total + s.qtdeSlots, 0),
                 }
             })
@@ -21,9 +27,10 @@ export default class ObterHorariosOcupados {
                 )
                 return [...horariosOcupados, ...horarios]
             }, [])
-            .map((d) => d.toTimeString().slice(0, 5))
 
-        return dados // [ '10:00', '10:15', '10:30', '10:45', '14:15' ]
+        const horariosFormatados = dados.map((d) => moment(d).tz('America/Sao_Paulo').format('HH:mm'))
+
+        return horariosFormatados // Ex: [ '10:00', '10:15', '10:30', '10:45', '14:15' ]
     }
 
     private somarMinutos(data: Date, minutos: number): Date {
