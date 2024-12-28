@@ -22,9 +22,9 @@ export default class ObterHorariosOcupados {
                 );
                 return [...horariosOcupados, ...horarios];
             }, [])
-            .map((d) => d.toTimeString().slice(0, 5)); // Retorna no formato 'HH:mm'
+            .map((d) => d.toTimeString().slice(0, 5));
 
-        return dados; // Exemplo: [ '10:00', '10:15', '10:30', '10:45', '14:15' ]
+        return dados;
     }
 
     private somarMinutos(data: Date, minutos: number): Date {
@@ -32,8 +32,8 @@ export default class ObterHorariosOcupados {
     }
 
     private ajustarParaFusoHorarioBrasilia(data: Date): Date {
-        const dataUtc = new Date(data); // Assume que `data` está em UTC
-        const offsetBrasilia = -3; // Fuso horário de Brasília em horas (UTC-3)
-        return new Date(dataUtc.getTime() + offsetBrasilia * 60 * 60 * 1000); // Ajusta para Brasília
+        const dataUtc = new Date(data);
+        const offsetBrasilia = -3; 
+        return new Date(dataUtc.getTime() + offsetBrasilia * 60 * 60 * 1000); 
     }
 }
