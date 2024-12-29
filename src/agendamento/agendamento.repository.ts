@@ -94,6 +94,8 @@ export class AgendamentoRepository implements RepositorioAgendamento {
     });
   }
 
+  
+
   async excluir(id: number): Promise<void> {
     await this.prismaService.agendamento.delete({
       where: {

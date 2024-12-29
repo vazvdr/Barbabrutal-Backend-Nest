@@ -79,7 +79,7 @@ export class AgendamentoController {
     @Param('id') id: string,
     @UsuarioLogado() usuarioLogado: Usuario,
   ) {
-    if (!usuarioLogado.barbeiro) {
+    if (!usuarioLogado) {
       throw new HttpException('Usuário não autorizado', 401);
     }
     await this.repo.excluir(+id);
