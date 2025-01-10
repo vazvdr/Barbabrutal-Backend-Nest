@@ -94,7 +94,20 @@ export class AgendamentoRepository implements RepositorioAgendamento {
     });
   }
 
-  
+  async alterar(id: number, agendamento: Agendamento): Promise<void> {
+    await this.prismaService.agendamento.update({
+      where: { id },
+      data: {
+        data: agendamento.data,
+        usuario: { connect: { id: agendamento.usuario.id } },
+        profissional: { connect: { id: agendamento.profissional.id } },
+        servicos: {
+          set: [], // Remove os serviços atuais
+          connect: agendamento.servicos.map((servico) => ({ id: servico.id })), // Adiciona os novos serviços
+        },
+      },
+    });
+  }  
 
   async excluir(id: number): Promise<void> {
     await this.prismaService.agendamento.delete({

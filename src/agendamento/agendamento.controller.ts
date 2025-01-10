@@ -8,6 +8,7 @@ import {
   HttpException,
   Param,
   Post,
+  Put,
 } from '@nestjs/common';
 import { UsuarioLogado } from '../usuario/usuario.decorator';
 
@@ -72,6 +73,32 @@ export class AgendamentoController {
     }
 
     return agendamentos;
+  }
+
+  @Put(':id')
+  async alterar(
+    @Param('id') id: string,
+    @Body() agendamento: Agendamento,
+    @UsuarioLogado() usuarioLogado: Usuario,
+  ) {
+    if (!usuarioLogado) {
+      throw new HttpException('Usuário não autorizado', 401);
+    }
+
+    const agendamentoExistente = await this.repo.buscarPorClienteEData(
+      usuarioLogado.id,
+      new Date(agendamento.data),
+    );
+
+    if (!agendamentoExistente) {
+      throw new HttpException('Agendamento não encontrado', 404);
+    }
+
+    if (agendamento.usuario.id !== usuarioLogado.id) {
+      throw new HttpException('Usuário não autorizado', 401);
+    }
+
+    await this.repo.alterar(+id, agendamento);
   }
 
   @Delete(':id')

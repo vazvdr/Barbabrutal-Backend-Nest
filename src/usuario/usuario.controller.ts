@@ -1,15 +1,16 @@
 import { UsuarioRepository } from './usuario.repository';
-import { LoginUsuario, RegistrarUsuario, Usuario} from '../regras';
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { LoginUsuario, RegistrarUsuario, Usuario } from '../regras';
+import { Body, Controller, Delete, HttpException, Post, Put } from '@nestjs/common';
 import { BcryptProvider } from './bcrypt.provider';
 import * as jwt from 'jsonwebtoken';
+import { UsuarioLogado } from './usuario.decorator';
 
 @Controller('usuario')
 export class UsuarioController {
   constructor(
     private readonly repo: UsuarioRepository,
     private readonly cripto: BcryptProvider,
-  ) {}
+  ) { }
 
   @Post('login')
   async login(
@@ -25,5 +26,22 @@ export class UsuarioController {
   async registrar(@Body() usuario: Usuario): Promise<void> {
     const casoDeUso = new RegistrarUsuario(this.repo, this.cripto);
     await casoDeUso.executar(usuario);
+  }
+
+  @Put('alterar')
+  async alterar(
+    @Body() dados: { email: string; senha: string; telefone: string },
+    @UsuarioLogado() usuarioLogado: Usuario,
+  ): Promise<void> {
+    if (usuarioLogado.email !== dados.email) {
+      throw new HttpException('Não autorizado para alterar outro usuário', 403);
+    }
+
+    await this.repo.alterar(usuarioLogado.id, dados.email, dados.senha, dados.telefone);
+  }
+
+  @Delete('excluir')
+  async excluir(@UsuarioLogado() usuarioLogado: Usuario): Promise<void> {
+    await this.repo.excluir(usuarioLogado.id);
   }
 }
