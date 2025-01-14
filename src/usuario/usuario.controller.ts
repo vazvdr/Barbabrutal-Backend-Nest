@@ -31,23 +31,23 @@ export class UsuarioController {
   }
 
   @Put('alterar')
-  async alterar(
-    @Body() dados: { email: string; senha: string; telefone: string },
-    @UsuarioLogado() usuarioLogado: Usuario,
-  ): Promise<void> {
-    console.log('Dados recebidos:', dados);
-    console.log('Usuário logado:', usuarioLogado);
+async alterar(
+  @Body() dados: { email: string; senha: string; telefone: string },
+  @UsuarioLogado() usuarioLogado: Usuario,
+): Promise<void> {
+  console.log('Dados recebidos:', dados);
+  console.log('Usuário logado:', usuarioLogado);
 
-    if (!dados) {
-      throw new HttpException('Corpo da requisição está vazio', 400);
-    }
-
-    if (usuarioLogado.email !== dados.email) {
-      throw new HttpException('Não autorizado para alterar os dados usuário', 403);
-    }
-
-    await this.repo.alterar(usuarioLogado.id, dados.email, dados.senha, dados.telefone);
+  if (!dados) {
+    throw new HttpException('Corpo da requisição está vazio', 400);
   }
+
+  if (usuarioLogado.email !== dados.email) {
+    throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
+  }
+
+  await this.repo.alterar(usuarioLogado.id, dados.email, dados.senha, dados.telefone);
+}
 
   @Delete('excluir')
   async excluir(@UsuarioLogado() usuarioLogado: Usuario): Promise<void> {
