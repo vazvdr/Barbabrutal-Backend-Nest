@@ -1,7 +1,7 @@
 import { HttpException, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
 import { UsuarioRepository } from './usuario.repository';
+import * as jwt from 'jsonwebtoken';
 import { Usuario } from '../regras';
 
 @Injectable()
@@ -15,19 +15,14 @@ export class UsuarioMiddleware implements NestMiddleware {
       throw new HttpException('Token não informado', 401);
     }
 
-    let usuario;
-    try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET!) as Usuario;
-      usuario = await this.repo.buscarPorEmail(payload.email!);
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as Usuario;
+    const usuario = await this.repo.buscarPorEmail(payload.email!);
 
-      if (!usuario) {
-        throw new HttpException('Usuário não encontrado', 401);
-      }
-    } catch (err) {
-      throw new HttpException('Token inválido', 403);
+    if (!usuario) {
+      throw new HttpException('Usuário não encontrado', 401);
     }
 
-    (req as any).usuario = usuario; 
+    (req as any).usuario = usuario;
     next();
   }
 }
