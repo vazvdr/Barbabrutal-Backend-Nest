@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DbModule } from './db/db.module';
 import { ServicoModule } from './servico/servico.module';
 import { AgendamentoModule } from './agendamento/agendamento.module';
@@ -12,10 +12,4 @@ import { UsuarioMiddleware } from './usuario/usuario.middleware';
   controllers: [UsuarioController],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(UsuarioMiddleware)
-      .forRoutes('usuario/alterar', 'usuario/excluir'); 
-  }
-}
+export class AppModule {}
