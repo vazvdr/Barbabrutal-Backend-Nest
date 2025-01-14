@@ -1,14 +1,17 @@
-import { Module } from '@nestjs/common';
-import { UsuarioMiddleware } from './usuario.middleware';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { UsuarioController } from './usuario.controller';
-import { DbModule } from 'src/db/db.module';
+import { UsuarioMiddleware } from './usuario.middleware';
 import { UsuarioRepository } from './usuario.repository';
 import { BcryptProvider } from './bcrypt.provider';
 
 @Module({
-  imports: [DbModule],
-  exports: [UsuarioMiddleware, UsuarioRepository],
   controllers: [UsuarioController],
-  providers: [UsuarioMiddleware, UsuarioRepository, BcryptProvider],
+  providers: [UsuarioRepository, BcryptProvider],
 })
-export class UsuarioModule {}
+export class UsuarioModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(UsuarioMiddleware) // Aplica o middleware
+      .forRoutes('usuario/alterar', 'usuario/excluir'); // Especifica rotas
+  }
+}
