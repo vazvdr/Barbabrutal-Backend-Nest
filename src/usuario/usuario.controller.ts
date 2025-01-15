@@ -42,6 +42,10 @@ async alterar(
     throw new HttpException('Corpo da requisição está vazio', 400);
   }
 
+  if (!usuarioLogado) {
+    throw new HttpException('Usuário não autenticado', 401);
+  }
+
   if (usuarioLogado.email !== dados.email) {
     throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
   }
