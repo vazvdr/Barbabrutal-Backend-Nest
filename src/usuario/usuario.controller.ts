@@ -38,21 +38,23 @@ export class UsuarioController {
   ): Promise<void> {
     console.log('Dados recebidos:', dados);
     console.log('Usuário logado:', usuarioLogado);
-
+  
+    // Verificar se os dados foram fornecidos
     if (!dados) {
       throw new HttpException('Corpo da requisição está vazio', 400);
     }
-
+  
+    // Verificar se o usuário está autenticado
     if (!usuarioLogado) {
       throw new HttpException('Usuário não autenticado', 401);
     }
-
+  
     // Verificar se o usuário logado é o mesmo que está sendo alterado
-    if (usuarioLogado.email !== dados.email) {
+    if (dados.email !== usuarioLogado.email) {
       throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
     }
-
-    // Atualiza diretamente os dados do usuário no banco de dados
+  
+    // Atualizar os dados do usuário no banco de dados
     try {
       await this.usuarioRepository.alterar({
         id: usuarioLogado.id, // ID do usuário logado
@@ -65,7 +67,7 @@ export class UsuarioController {
       console.error('Erro ao atualizar o usuário:', error);
       throw new HttpException('Erro ao atualizar os dados do usuário', 500);
     }
-  }
+  }  
 
   @Delete('excluir')
   async excluir(@UsuarioLogado() usuarioLogado: Usuario): Promise<void> {
