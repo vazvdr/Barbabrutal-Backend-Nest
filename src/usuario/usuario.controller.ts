@@ -34,32 +34,27 @@ export class UsuarioController {
   @Post('alterar')
   async alterar(
     @Body() dados: { email: string; senha: string; telefone: string },
-    @UsuarioLogado() usuarioLogado: Usuario,
+    
   ): Promise<void> {
     console.log('Dados recebidos:', dados);
-    console.log('Usuário logado:', usuarioLogado);
+    
 
     if (!dados) {
       throw new HttpException('Corpo da requisição está vazio', 400);
     }
 
-    if (!usuarioLogado) {
-      throw new HttpException('Usuário não autenticado', 401);
-    }
+    
 
     // Verificar se o usuário logado é o mesmo que está sendo alterado
-    if (usuarioLogado.email !== dados.email) {
-      throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
-    }
+    
 
     // Atualiza diretamente os dados do usuário no banco de dados
     try {
       await this.usuarioRepository.alterar({
-        id: usuarioLogado.id, // ID do usuário logado
+        
         email: dados.email,  // Atualizar email
         senha: dados.senha,  // Atualizar senha
         telefone: dados.telefone, // Atualizar telefone
-        nome: usuarioLogado.nome, // Mantém o nome original
       });
     } catch (error) {
       console.error('Erro ao atualizar o usuário:', error);
