@@ -6,23 +6,18 @@ import { Usuario } from '../regras';
 
 @Injectable()
 export class UsuarioMiddleware implements NestMiddleware {
-  constructor(private readonly repo: UsuarioRepository) {}
-
-  async use(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers['authorization']?.replace('Bearer ', '');
-
-    if (!token) {
-      throw new HttpException('Token não informado', 401);
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log('Middleware executado, headers:', req.headers);
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      try {
+        const segredo = process.env.JWT_SECRET!;
+        const usuario = jwt.verify(token, segredo);
+        req['usuarioLogado'] = usuario;
+      } catch (error) {
+        console.error('Erro ao verificar token:', error);
+      }
     }
-
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as Usuario;
-    const usuario = await this.repo.buscarPorEmail(payload.email!);
-
-    if (!usuario) {
-      throw new HttpException('Usuário não encontrado', 401);
-    }
-
-    (req as any).usuario = usuario;
     next();
   }
 }
