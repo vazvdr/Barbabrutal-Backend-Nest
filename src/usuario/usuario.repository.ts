@@ -18,12 +18,7 @@ export class UsuarioRepository implements RepositorioUsuario {
     return this.prismaService.usuario.findUnique({
       where: { email },
     });
-  }
-
-  async buscarPorId(id: number): Promise<Usuario | null> {
-    return this.prismaService.usuario.findUnique({ where: { id } });
-  }
-  
+  }  
 
   async alterar(usuario: Usuario): Promise<Usuario> {
     // Atualiza os dados do usuário diretamente no banco de dados

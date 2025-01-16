@@ -33,38 +33,44 @@ export class UsuarioController {
 
   @Post('alterar')
   async alterar(
-    @Body() dados: { email: string; senha: string; telefone: string },
-    @UsuarioLogado() usuarioLogado: Usuario,
+    @Body() dados: { token: string; email: string; senha: string; telefone: string },
   ): Promise<void> {
-    console.log('Dados recebidos:', dados);
-    console.log('Usuário logado:', usuarioLogado);
-  
-    if (!dados) {
-      throw new HttpException('Corpo da requisição está vazio', 400);
+    const { token, email, senha, telefone } = dados;
+
+    // Verifica se o token foi fornecido
+    if (!token) {
+      throw new HttpException('Token não fornecido', 401);
     }
-  
-    if (!usuarioLogado) {
-      throw new HttpException('Usuário não autenticado', 401);
-    }
-  
-    // Usando o método buscarPorId do repositório
-    const usuarioDoBanco = await this.repo.buscarPorId(usuarioLogado.id);
-  
-    if (!usuarioDoBanco) {
-      throw new HttpException('Usuário não encontrado no banco de dados', 404);
-    }
-  
-    if (usuarioLogado.email !== usuarioDoBanco.email) {
-      throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
-    }
-  
+
+    // Decodifica o token
+    let usuarioToken;
     try {
-      await this.repo.alterar({
-        id: usuarioLogado.id,
-        email: dados.email,
-        senha: dados.senha,
-        telefone: dados.telefone,
-        nome: usuarioDoBanco.nome,
+      const segredo = process.env.JWT_SECRET!;
+      usuarioToken = jwt.verify(token, segredo);
+    } catch (error) {
+      throw new HttpException('Token inválido ou expirado', 401);
+    }
+
+    // Verifica se o usuário extraído do token possui um ID válido
+    if (!usuarioToken || !usuarioToken.id) {
+      throw new HttpException('Token inválido', 401);
+    }
+
+    // Busca o usuário no banco de dados pelo ID extraído do token
+    const usuarioDoBanco = await this.usuarioRepository.buscarPorId(usuarioToken.id);
+
+    if (!usuarioDoBanco) {
+      throw new HttpException('Usuário não encontrado', 404);
+    }
+
+    // Atualiza os dados do usuário
+    try {
+      await this.usuarioRepository.alterar({
+        id: usuarioDoBanco.id,
+        email: email || usuarioDoBanco.email,
+        senha: senha || usuarioDoBanco.senha,
+        telefone: telefone || usuarioDoBanco.telefone,
+        nome: usuarioDoBanco.nome, // Nome permanece inalterado
       });
     } catch (error) {
       console.error('Erro ao atualizar o usuário:', error);
