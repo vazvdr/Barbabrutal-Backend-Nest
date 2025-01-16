@@ -20,6 +20,11 @@ export class UsuarioRepository implements RepositorioUsuario {
     });
   }
 
+  async buscarPorId(id: number): Promise<Usuario | null> {
+    return this.prismaService.usuario.findUnique({ where: { id } });
+  }
+  
+
   async alterar(usuario: Usuario): Promise<Usuario> {
     // Atualiza os dados do usuário diretamente no banco de dados
     const usuarioAtualizado = await this.prismaService.usuario.update({
