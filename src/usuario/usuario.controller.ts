@@ -47,6 +47,7 @@ export class UsuarioController {
     try {
       const segredo = process.env.JWT_SECRET!;
       usuarioToken = jwt.verify(token, segredo);
+      console.log(dados)
     } catch (error) {
       throw new HttpException('Token inválido ou expirado', 401);
     }
