@@ -31,7 +31,7 @@ export class UsuarioController {
     await casoDeUso.executar(usuario);
   }
 
-  @Put('alterar')
+  @Post('alterar')
   async alterar(
     @Body() dados: { email: string; senha: string; telefone: string },
     @UsuarioLogado() usuarioLogado: Usuario,
