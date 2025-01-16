@@ -32,42 +32,49 @@ export class UsuarioController {
   }
 
   @Post('alterar')
-  async alterar(
-    @Body() dados: { email: string; senha: string; telefone: string },
-    @UsuarioLogado() usuarioLogado: Usuario,
-  ): Promise<void> {
-    console.log('Dados recebidos:', dados);
-    console.log('Usuário logado:', usuarioLogado);
-  
-    // Verificar se os dados foram fornecidos
-    if (!dados) {
-      throw new HttpException('Corpo da requisição está vazio', 400);
-    }
-  
-    // Verificar se o usuário está autenticado
-    if (!usuarioLogado) {
-      throw new HttpException('Usuário não autenticado', 401);
-    }
-  
-    // Verificar se o usuário logado é o mesmo que está sendo alterado
-    if (dados.email !== usuarioLogado.email) {
-      throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
-    }
-  
-    // Atualizar os dados do usuário no banco de dados
-    try {
-      await this.usuarioRepository.alterar({
-        id: usuarioLogado.id, // ID do usuário logado
-        email: dados.email,  // Atualizar email
-        senha: dados.senha,  // Atualizar senha
-        telefone: dados.telefone, // Atualizar telefone
-        nome: usuarioLogado.nome, // Mantém o nome original
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar o usuário:', error);
-      throw new HttpException('Erro ao atualizar os dados do usuário', 500);
-    }
-  }  
+async alterar(
+  @Body() dados: { email: string; senha: string; telefone: string },
+  @UsuarioLogado() usuarioLogado: Usuario,
+): Promise<void> {
+  console.log('Dados recebidos:', dados);
+  console.log('Usuário logado:', usuarioLogado);
+
+  // Verificar se os dados foram fornecidos
+  if (!dados) {
+    throw new HttpException('Corpo da requisição está vazio', 400);
+  }
+
+  // Verificar se o usuário está autenticado
+  if (!usuarioLogado) {
+    throw new HttpException('Usuário não autenticado', 401);
+  }
+
+  // Consultar o usuário no banco de dados pelo ID
+  const usuarioDoBanco = await this.usuarioRepository.buscarPorId(usuarioLogado.id);
+
+  if (!usuarioDoBanco) {
+    throw new HttpException('Usuário não encontrado no banco de dados', 404);
+  }
+
+  // Verificar se o email do usuário logado corresponde ao email no banco de dados
+  if (usuarioLogado.email !== usuarioDoBanco.email) {
+    throw new HttpException('Não autorizado para alterar os dados do usuário', 403);
+  }
+
+  // Atualizar os dados do usuário no banco de dados
+  try {
+    await this.usuarioRepository.alterar({
+      id: usuarioLogado.id, // ID do usuário logado
+      email: dados.email,  // Atualizar email
+      senha: dados.senha,  // Atualizar senha
+      telefone: dados.telefone, // Atualizar telefone
+      nome: usuarioDoBanco.nome, // Mantém o nome original
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar o usuário:', error);
+    throw new HttpException('Erro ao atualizar os dados do usuário', 500);
+  }
+}
 
   @Delete('excluir')
   async excluir(@UsuarioLogado() usuarioLogado: Usuario): Promise<void> {
